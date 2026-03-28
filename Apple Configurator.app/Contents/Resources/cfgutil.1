@@ -1,0 +1,576 @@
+.\"Copyright (c) 2015-2022 Apple Inc. All Rights Reserved.
+.Dd 11 August, 2015
+.Os "Apple Configurator"
+.Dt CFGUTIL 1
+.Sh NAME
+.Nm cfgutil
+.Nd Command-line iOS device management
+.Sh SYNOPSIS
+.Nm cfgutil
+.Op Fl C Ao Ar certificate Ac
+.Op Fl K Ao Ar private-key Ac
+.Op Fl e Ao Ar device-ECID Ac | Fl f | Fl Fl foreach
+.Op Fl Fl format Ar JSON | Ar plist | Ar text
+.Op Fl v
+.Cm command
+.Op Ao Ar options Ac ...
+.Sh DESCRIPTION
+cfgutil performs various management tasks on one or more attached iOS devices. It can be used manually and as part of automated workflows.
+.Sh TERMS
+These terms are used throughout the manual and are useful for understanding the design of
+.Nm cfgutil .
+.Bl -hang
+.It Em activation
+.br
+The first step of setting up a device after iOS is installed; requires an Internet connection. Some devices require a
+.Tn SIM
+card inserted to activate. If used, Activation Lock must be disabled.
+.It Em bundle identifier
+.br
+A unique name identifying an iOS app, generally in reverse
+.Tn DNS
+format.
+.Pp
+Example:
+.Ql com.apple.Camera
+.It Em ECID
+.br
+A unique identifier of a device which is available even in recovery mode. Used to select devices.
+.It Em configuration profile
+.br
+A file containing settings for a device. The extension is .mobileconfig.
+.It Em IPA
+.br
+A file containing an iOS app. The extension is .ipa.
+.It Em IPSW
+.br
+A file containing an iOS restore image. The extension is .ipsw.
+.It Em "MobileSync directory"
+.br
+The directory where backups are stored by iTunes and Apple Configurator:
+.Bd -ragged -offset indent -compact
+.Li "~/Library/Application Support/MobileSync/Backup"
+.Ed
+.It Em pairing
+.br
+Pairing a device requests it to trust the host Mac. Most commands require a paired device.
+.It Em provisioning profile
+.br
+A profile which allows development and enterprise apps to run on a device.
+The extension is .mobileprovision.
+.It Em recovery mode/DFU
+.br
+A device showing the "connect to iTunes" screen or a black screen is in recovery mode. It can be repaired with
+.Cm revive
+or
+.Cm restore Ns .
+.It Em supervision
+.br
+A supervised device allows management of additional features which can otherwise only be modified on the device itself. Supervised devices recognize host Mac computers through their supervision identities. Unlike iOS devices, Apple TV devices always accept supervised-only commands, but don't use supervision identities.
+.It Em supervision identity
+.br
+A signing identity (X.509 certificate and private key) used to authenticate a host Mac to a supervised device. See
+.Nm EXAMPLES
+for steps to generate an identity.
+.It Em tags
+.br
+A key-value store on the device which can be used to save identifying information.
+.It Em UDID
+.br
+Similar to ECID, a unique identifier for a device which is only available when booted into iOS.
+.It Em unlock token
+.br
+On supervised devices, a key which can be saved and later used to clear a passcode. This token must be saved before the device is locked, and may be invalidated if the device is erased or the iOS software is updated.
+.El
+.Sh OPTIONS
+Some options take a path to a file as a parameter for input or output. For these options, you may pass
+.Ql "-"
+to read the file from standard input, or write the results to standard output.
+.Pp
+.Em IMPORTANT:
+If you use this for multiple options, the behavior is undefined.
+.Pp
+Some options take passwords as parameters. Although the password can be entered directly, you can pass the name of a file by prefixing it with
+.Ql "@" Ns :
+.Pp
+.Fl Fl "password"
+@password.txt
+.Pp
+You can also pass
+.Ql "-"
+and a password prompt will be shown. This avoids sensitive passwords being shown to other users.
+.Bl -hang
+.It Fl C Ao Ar "supervision certificate file" Ac
+.br
+The certificate part of the supervision identity. Must be in
+.Tn DER
+format.
+.It Fl K Ao Ar "private key file" Ac
+.br
+The private key part of the supervision identity. Must be in
+.Tn DER
+format.
+.It Fl e | Fl Fl ecid Ao Ar ECID Ac
+.br
+Selects the device with that
+.Tn ECID
+on which to apply the given command. May be passed more than once to select multiple devices, although not all commands support this.
+.It Fl f | Fl Fl foreach
+.br
+Selects all attached devices. If neither
+.Fl e
+nor
+.Fl f
+is passed, the first detected device will be selected.
+.Pp
+A few commands always operate on all attached devices, and a few commands will error if multiple devices are selected.
+.It Fl Fl format Ar JSON | Ar plist | Ar text
+.br
+Sets the output format of
+.Nm cfgutil .
+.Pp
+JSON and plist formats output dictionaries with results of each command; see
+.Nm "JSON OUTPUT" .
+.Pp
+Plaintext output format is the default.
+.It Fl Fl progress
+.br
+Output progress messages in
+.Tn JSON
+and plist format mode; otherwise, they will only ever print one message.
+.It Fl v
+Increases the verbosity.
+.El
+.Sh COMMANDS
+More information on command options is available from
+.Ql "cfgutil help" Ao Ar command Ac .
+.Bl -hang
+.It Cm activate
+.br
+Activates devices which are unactivated and displaying the first page of Setup Assistant. Fails if the activation server requires user interaction, for example if the device is activation locked.
+.Pp
+This step runs as part of
+.Cm prepare .
+.It Cm add-tags Oo Fl u Ao Ar UUID Ac Fl n Ao Ar name Ac Oc Ns ...
+.br
+Add a new tag to the device.
+.Ar UUID
+and
+.Ar name
+can be any string. The name will be displayed in Apple Configurator, while the UUID will be used to uniquely identify the tag.
+.It Cm backup
+.br
+Take a backup of a prepared iOS device and stores it under the device's UDID in the MobileSync directory. Backups may be taken from booted iOS devices which have completed Setup Assistant.
+.It Cm clear-passcode Ao Ar "unlock token file" Ac
+.br
+Send an unlock token to a supervised device; the passcode will be removed from the device.
+If there is a passcode policy set on the device, you may be required to immediately enter a new one.
+The unlock token path may be
+.Li -
+to read from stdin.
+.Pp
+This command only runs on one device at a time.
+.It Cm erase | Cm erase-content
+.br
+Causes a device to perform Erase All Content and Settings. All user data is removed and unrecoverable. The device must first be signed out of Find my iPhone. Although devices can also be erased by restoring new iOS firmware onto them, this method is much faster and does not require updating the OS.
+.Pp
+Devices running iOS 8 or earlier must be supervised to perform this action.
+.It Cm exec Oo Fl a | Fl Fl on-attach Ao Ar "shell command" Ac Oc Oo Fl d | Fl Fl on-detach Ao Ar "shell command" Ac Oc
+.br
+Run a custom command each time a device attaches or detaches.
+.Pp
+There is no filtering on device attach or detach events; for example, restoring a device will cause it to detach and attach several times in a row. Complex "on attach" scripts should be written to exit if a previous attach script is still running for the device.
+.Pp
+Script execution is not serialized. A detach script may start as an attach is still running and vice versa.
+.Pp
+The
+.Fl Fl ecid
+and
+.Fl Fl foreach
+global options aren't respected by this command.
+.Pp
+When the attach/detach scripts are running, these environment variables are set:
+.Bl -tag -compact -offset indent
+.It ECID
+Target device's
+.Tn ECID .
+.It PATH
+The path is changed to include
+.Nm cfgutil .
+.It UDID
+Target device's
+.Tn UDID Ns
+, if available.
+.It deviceName
+Target device's name, if available. ("iPhone 1")
+.It deviceType
+Target device's type, if available. ("iPhone7,2")
+.It buildVersion
+Installed iOS build number, if available. ("12B466")
+.It firmwareVersion
+Installed iOS version, if available. ("8.1.3")
+.It locationID
+Location ID of the device's USB port. ("0x00000001")
+.El
+.It Cm get | Cm get-property
+.br
+Fetch various properties of a device.
+.Pp
+To see the possible names of properties, use
+.Ql "cfgutil get supportedPropertyNames" .
+.Pp
+To fetch all properties, use
+.Ql "cfgutil get all" .
+.Pp
+In JSON or plist mode, properties are printed as a dictionary under
+.Em Output
+with
+.Tn ECID Ns s
+as keys and properties as values. Additionally, if any errors occurred,
+.Em Output
+will contain a dictionary under
+.Em Error
+with
+.Tn ECID Ns s
+as keys and error descriptions as values.
+.Pp
+Some properties will be printed as dictionaries with specific keys. These include:
+.Pp
+.Bl -item -compact -offset "xxxxxx"
+.It
+configurationProfiles
+.It
+provisioningProfiles
+.It
+installedApps
+.It
+systemApps
+.It
+tags
+.El
+.It Cm get-app-icon Oo Fl Fl raw Oc Ao Ar "app bundle ID" Ac Ns ...
+.br
+Save app icons from a single device.
+.Pp
+You can find the bundle identifier for an app with
+.Ql "cfgutil get installedApps"
+or
+.Ql "cfgutil get systemApps" .
+.It Cm get-icon-layout
+.br
+Fetch the home screen layout of a single device and print it as a JSON object.
+.Pp
+The entries can be rearranged and used with 
+.Cm set-icon-layout .
+The first top-level entry represents the dock, while each later entry is one home screen page. Each page contains items that are either folders, web clip URLs, or app bundle identifiers. A folder is an array where the first entry is the name of the folder.
+.It Cm get-unlock-token
+.br
+Get unlock tokens from supervised devices, for later use by
+.Cm clear-passcode .
+This command can't be used while the device is locked, so if you wish to clear passcodes from devices you must save the unlock token ahead of time. Unlock tokens may change, such as when the device is erased or updated. 
+.Pp
+In plaintext mode, these are printed directly to Terminal.
+.Tn JSON
+and plist mode print them per device under the Output key.
+.It Cm help | Cm usage Ao Ar command Ac
+.br
+Show the help and options for a command.
+.It Cm install-app Ao Ar "path to app" Ac
+.br
+Installs the given app (IPA file or enterprise app) on devices.
+.Pp
+Users may need to sign into the App Store on the device with the appropriate account for the app to run.
+.It Cm install-doc | Cm install-document Oo Fl s | Fl Fl sync Oc Ao Ar "app bundle identifier" Ac Ao Ar "path to document" Ac Ns ...
+.br
+Installs the given document(s) in the named app's storage on devices. Use the
+.Fl Fl sync
+option to sync the document(s) on the device using the given document(s) as a sync source. This will remove any documents on the device that are not included in the passed in documents. Any new source documents will be installed and any updated documents will also be updated on the device. Not passing this flag will result in reinstalling documents even if an identical copy already exists on the device, except for documents stored in Apple Books, which always behaves as if this flag is passed.
+.Pp
+You can find the bundle identifier for an app with
+.Ql "cfgutil get installedApps"
+or
+.Ql "cfgutil get systemApps" .
+.It Cm install-profile | Ao Ar "path to profile" Ac Ns ...
+.br
+Install the given configuration or provisioning profiles on devices.
+Profiles will be installed silently if a supervision identity is passed in the general options.
+On devices running iOS 8 or later, profiles are installed silently if the device is in Setup Assistant.
+.Pp
+Otherwise, profiles require confirmation on the device before installing.
+When this occurs,
+.Nm cfgutil
+raises an issue and halts any further processes.
+In this situation, it isn't possible to install multiple profiles in one
+.Nm cfgutil
+command.
+.Pp
+.Tn Device Management Service
+enrollment profiles and profiles with
+.Tn SCEP
+payloads cannot be installed unless the device has already joined a network.
+.Nm cfgutil
+will automatically wait after installing configuration profiles containing networks to allow the device to auto-join.
+.Pp
+Some profiles can't be installed silently, such as profiles for email accounts if the password is missing. Some profiles can only be installed on supervised devices.
+.It Cm list | Cm list-devices
+.br
+List attached devices.
+In plaintext output, the device type,
+.Tn ECID Ns , Tn UDID Ns , Tn USB
+location ID and name are printed in column format and can be parsed with a tool such as
+.Xr awk 1 .
+The
+.Fl Fl ecid
+and
+.Fl Fl foreach
+global options are not respected by this command. It always lists all devices.
+.It Cm list-backups
+.br
+List backups available to be restored using
+.Cm restore-backup Ns .
+.Pp
+These backups are stored in the MobileSync directory.
+.It Cm pair
+.br
+Begin pairing with devices.
+.Pp
+If no supervision identity is passed, it is necessary to confirm pairing on the device itself by tapping
+.Em Trust
+on the pairing dialog.
+.It Cm prepare
+.br
+Applies initial configuration to freshly erased or unconfigured devices in Setup Assistant.
+The devices are activated, have Setup Assistant panes configured, and supervised, depending on the options passed.
+.Pp
+To supervise a device, use the
+.Fl Fl supervised
+,
+.Fl Fl name
+and
+.Fl Fl host-cert
+options.
+If supervised, to never pair with another host Mac, use the
+.Fl Fl forbid-pairing
+option.
+To use setup-time
+.Tn Device Management Service
+enrollment on the device, use the
+.Fl Fl mdm-url
+and
+.Fl Fl anchor-cert
+options.
+.Pp
+Devices can also automatically skip some Setup Assistant panes. For specific skipping options, use
+.Ql "cfgutil help prepare" .
+.Pp
+In order to redo preparation on a device, it must be erased beforehand with
+.Cm erase
+(available with supervised devices),
+.Cm restore,
+or by using
+.Em Erase All Content and Settings
+on the device.
+.Pp
+Devices enrolled in Apple School Manager or Apple Business Manager may be automatically configured using
+.Fl Fl dep Ns .
+In this mode, all non-ASM or non-DEP options have no effect, except for
+.Fl Fl skip-language
+and
+.Fl Fl skip-region .
+Before preparing with ASM or DEP, the device must be able to reach your device management service over a network connection. To cause devices to join a WLAN network, use
+.Cm install-profile
+before
+.Cm prepare
+to install a profile with a Wi-Fi payload set to auto-join. In this case, the "interactive install required" error from
+.Cm install-profile
+should be ignored.
+.It Cm remove-app Ao Ar "app bundle identifier" Ac
+.br
+Removes the app with the given bundle identifier from attached devices.
+.It Cm remove-profile Ao Ar "path to profile or identifier" Ac
+.br
+Removes the passed-in configuration and provisioning profiles from devices. Parameters may either be the original files, by path, or the identifiers of the profiles.
+.It Cm remove-tags Ao Ar "UUID" Ac Ns ...
+.br
+Remove the tags with the given
+.Tn UUID Ns s
+from attached devices.
+.It Cm rename | Cm set-name Ao Ar name Ac
+.br
+Set the name on attached devices to the given string.
+.It Cm restart
+.br
+Immediately reboot attached devices. If a passcode is set on a device, it will not rejoin Wi-Fi networks or respond to commands, including
+.Cm clear-passcode
+until the passcode is entered.
+.It Cm restore | Cm update Op Fl I Ao Ar "path to IPSW" Ac Ns ...
+.br
+Install the latest iOS on attached devices. If a device is attached in recovery mode, both
+.Li restore
+and
+.Li update
+will erase it.
+.Pp
+If you want to install a beta build of iOS onto eligible devices, use one
+.Fl I
+option for each
+.Tn IPSW
+file and the appropriate build will be used for each device.
+.Pp
+When using this option and targeting all devices, be sure only the intended devices are attached to the host Mac to avoid data loss. If a device signed into Find my iPhone is restored, you will have to clear its activation lock after restoring.
+.It Cm restore-backup
+.br
+Restore a backup of data and settings taken from a device.
+.Pp
+Some private data such as passwords will only be restored if the backup was encrypted with a password, or if the device targeted is the one who was the original source of the backup. Similarly, supervision state and configuration profiles are only restored to the original device. Note that using
+.Cm prepare
+to re-supervise devices will not work on the original device in this case, as it is already supervised.
+.Pp
+If
+.Fl Fl source
+is passed, each device will restore from the backup of that name in the MobileSync directory. Otherwise, each device will try to restore from the backup named with that device's
+.Tn UDID .
+.Pp
+Devices must be erased before a backup can be restored to them.
+.It Cm revive
+.br
+Attempt to rescue a device which is in recovery mode. This command attempts to install the latest iOS version on the devices without erasing user data. If the command fails, use
+.Cm restore
+to erase the device and make it usable again.
+.It Cm set-backup-password
+.br
+Set or remove a password on the device which will be used to encrypt backups. When backups are passworded, more private information including account passwords can be restored onto any other device. Otherwise, private information will only be restored onto the original device from the backup.
+.Pp
+Removing the backup password requires the original password to be entered again, even if the device is supervised.
+.It Cm shut-down
+.br
+Immediately power off attached iOS devices. This command does not support Apple TV.
+.It Cm set-icon-layout
+.br
+Set the home screen icon layout on devices, using the JSON format from
+.Cm get-icon-layout .
+.Pp
+Unexpected behavior may occur if the given layout does not contain every icon on the device or contains too many icons for one screen.
+.It Cm syslog
+.br
+Display a single device's syslog output. This command runs until canceled with ctrl-C. If the device is detached, syslog waits for it to reattach.
+.It Cm unpair
+.br
+Remove the pairing to the host Mac from devices. After unpairing, most commands won't work on the device until its Trust pairing dialog is accepted.
+.It Cm version
+.br
+Show the currently installed version of cfgutil.
+.It Cm wallpaper Oo Fl Fl sourceRect Ao Ar x,y,w,h Ac Oc Oo Fl Fl screen Ar lock | Ar home | Ar both Oc Oo Fl Fl text Ao Ar "line of text" Ac Oc
+.br
+Set wallpaper on supervised devices. You can use the options to crop the original image and overlay text on it.
+.El
+.Sh GENERATING SUPERVISION IDENTITIES
+A new supervision identity can be generated using the
+.Xr openssl 1
+command as follows:
+.Bd -ragged -offset indent
+.Bf Li
+openssl genrsa -out tmp-privkey.pem 2048
+.br
+openssl req -new -x509 -key tmp-privkey.pem -out tmp-cert.pem -days 3600
+.br
+openssl rsa -outform DER -out identity-key.der -in tmp-privkey.pem
+.br
+openssl x509 -outform DER -out identity-cert.crt -in tmp-cert.pem
+.br
+rm tmp-cert.pem tmp-privkey.pem
+.Ef
+.Ed
+.Pp
+You can export existing signing identities from Apple Configurator using
+.Em "Preferences > Organizations > Export Identity..." .
+.Sh JSON OUTPUT
+In JSON and plist output modes,
+.Nm cfgutil Ns 's
+output is a dictionary similar to the following:
+.Bd -ragged -offset indent
+.Bf Li
+{"Command":"add-tags","Type":"CommandOutput","Devices":["0x9118908BB6027"]]}
+.Ef
+.Ed
+.Pp
+All dictionaries have a key called
+.Em Type Ns
+, which can be used to determine the format of the message. Types are:
+.Bl -hang -width "CommandOutput'
+.It Em CommandOutput
+The command has succeeded and produced output.
+.Bl -hang -compact -width Command
+.It Em Command
+Name of the command.
+.It Em Devices
+List of
+.Tn ECID Ns s
+against which the command was run.
+.It Em Output
+A dictionary with
+.Tn ECID Ns s
+as keys and command-specific output as values. See
+.Nm COMMANDS
+for specific formats.
+.El
+.It Em Error
+The command encountered an issue. See
+.Nm DIAGNOSTICS .
+.Bl -hang -width UnaffectedDevices -compact
+.It Em AffectedDevices
+Devices which encountered this issue.
+.It Em UnaffectedDevices
+Devices which the command was running against, but were not affected by this issue. Their state is not known.
+.It Em Message
+High level description of the error.
+.It Em Detail
+Detailed description of the error.
+.It Em FailureReason
+Detailed failure reason of the error.
+.It Em Domain / Em Code
+Specific error code. Support documents will refer to errors using these.
+.El
+.It Em Syslog
+Output from the syslog command.
+.Bl -hang -width Message -compact
+.It Em Message
+A line of text.
+.El
+.El
+.Sh DIAGNOSTICS
+When
+.Nm cfgutil
+encounters an issue, it stops the command immediately and reports which devices were affected by the issue. The state of unaffected devices is not guaranteed. After resolving the issue, check their state or repeat the command.
+.Pp
+In plaintext mode, error output looks like:
+.Bd -ragged -offset indent
+.Bf Li
+$ cfgutil install-profile profile.mobileconfig
+.br
+cfgutil: error: A profile with the same identifier is already installed.
+.br
+(Domain: ConfigurationUtilityKit.error Code: 118)
+.Pp
+"install-profile" failed on iPhone (ECID: 0x9118908BB6027).
+.Pp
+--- Summary ---
+.br
+Operation "install-profile" failed on 2 devices.
+.Ef
+.Ed
+.Pp
+In
+.Tn JSON
+or plist mode,
+.Nm cfgutil
+will output a message of type
+.Em Error .
+.Sh EXIT STATUS
+.Ex -std cfgutil
+.Sh HISTORY
+.Nm cfgutil
+was introduced with Apple Configurator 2.0.
+.Sh CAVEATS
+.Nm cfgutil
+doesn't support recovering from issues, while the GUI does.
