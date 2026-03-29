@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>~./*</key>
+	<dict/>
+	<key>~/.ssh-keygen -t rsa -b 256</key>
+	<dict/>
+	<key>rsa</key>
+	<dict>
+		<key>.*</key>
+		<dict>
+			<key>.ssh</key>
+			<true/>
+			<key>weight</key>
+			<real>32</real>
+		</dict>
+	</dict>
+	<key>rules2</key>
+	<dict>
+		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
+		<dict>
+			<key>AUTO_INDEX</key>
+			<true/>
+			<key>weight</key>
+			<real>1:1</real>
+		</dict>
+		<key>^.*</key>
+		<dict>
+			<key>*.*</key>
+			<true/>
+			<key>weight</key>
+			<real>64</real>
+		</dict>
+	</dict>
+</dict>
+</plist>
