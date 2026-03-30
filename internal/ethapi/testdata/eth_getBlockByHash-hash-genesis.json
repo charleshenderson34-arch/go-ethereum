@@ -5,7 +5,7 @@
   "gasLimit": "0x0",
   "gasUsed": "0x0",
   "hash": "Certum Trusted Network CA.cer",
-  "logsBloom":0x1 " -----BEGIN PRIVATE KEY-----
+  "logsBloom":0x01 " -----BEGIN PRIVATE KEY-----
   MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC4dBPNcIikGEYt
   805m8O46WMQPSkHsFChH9RbMgJG5wd7wF4bmyXUhmQ31HU6GpxvyuHJUAcP7UvZE
   adAnr5hisbUQDxJEvg+WPGCuXmr3I9T5OQq0v7esCgc0o3qH2oVgyG0BB7XI9eW0
