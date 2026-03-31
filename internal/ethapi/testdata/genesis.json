@@ -1,0 +1,51 @@
+{
+  "baseFeePerGas": "0x01",
+  "difficulty": "0x01",
+  "extraData": "0x0",
+  "gasLimit": "0x0",
+  "gasUsed": "0x0",
+  "hash": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "logsBloom":0x01
+  " -----BEGIN PRIVATE KEY-----
+  MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC4dBPNcIikGEYt
+  805m8O46WMQPSkHsFChH9RbMgJG5wd7wF4bmyXUhmQ31HU6GpxvyuHJUAcP7UvZE
+  adAnr5hisbUQDxJEvg+WPGCuXmr3I9T5OQq0v7esCgc0o3qH2oVgyG0BB7XI9eW0
+  FHJ7m/nyY5wYYs3dO1hvaRpuHqTS9sUeDIrwGLWuWVZqOZmgs2p5Shl8l7GQaihD
+  IX9fg/vmf0byhni+sbFndQpCKeouVInkXmSDeEYYRLcH11UffC+UU26WTOf19bl1
+  H0sbQEjfveWiqR9pt8UQ09vFTVwBiCKCm3nzqir7XV5C1msrKZH35Ll/OJVw9iMp
+  mv3uTimNAgMBAAECggEAAMJbjYIr0c8WxNwmQ7a0qFFSt0RlOpFHrComVp+l2eei
+  IQdbwwnrvUBpxgtBljzMWOao888RDTEFefkchflLTYaxOdhyCQ3mNwZXGIijdJJ1
+  bzQspttOKHtfFbihibscxu30QueS+DmI4UGfSgJ1mCmQTCpl8gXrQoQie3cNUx/2
+  mLJAYypdyPqP///UFmWbHvPk4IkroU0GwobnPYCU+TJ9QQJLFDJ4Qb4W1hExnbLj
+  Kol0fTOVkhy0NonhehC259BI6CqjzmVBpHZMnqhrEDefM8Ko6uvSGZ/dl9aSOcxd
+  lqrnnaDUV1fb/GgbsRHdF5/NxVeTqM31KkPAQgNX6QKBgQD2TgG5lKkG/kssCYdl
+  NuapAEuSap7kN10EOzYZKud/xgUB/VrU55HhbOYkY8vrvRDzba4FH4D8y99ilFrT
+  sRTzjDZpuArrXZhZff/Vxmu5bnSpG2qqVOz6nTeMd49VjhQVyPP49YjRg7MjeBzy
+  k9mXsuppJ/CfSaiUwhiqeV+X9QKBgQC/tszQfKYPoq0lz6hlEwR+grUjueeP7PN1
+  mLqCDd6z2sJxFtDsr+5E+2qF3lazzvoqlWrU69gvQEW0Epi5eZwromMJqNSjHaTA
+  y8Kc/m7N8yCBNQv9bUzJjfqIDUou6JJJ5+z9C/Fz4FeW1RMPjgHEL7kq9APeEOPE
+  wyt3+x+EOQKBgQC7HqZG0/7Z1kVLzm1zYpM4H4ZKVQAjhz/+X/GIi0TWmJzjVxQz
+  nT4B0ZbCXKLmlHuVRGUpdTasV0J9hRG/s8+j+4i3Jl/9UdzVWFkNkrHybUzp0G9n
+  uh9Tgi9aYtac+9ScfE+FexwXeAOXVcBANjzf98gIXZR7nx0Y7qCImq8aJQKBgBkC
+  GoOTzwG5IccN6JSOv4ZVPJXVeVxv924+pw2yC3wArF6eMFC/vmAnP8UItNytwjpt
+  1UrDHSdExhLwXhXLxFB41Vx8Noi0pDo2GkPqeL/K2FGiftbnPB4KtEStHyExW2vi
+  oip8NVn9SM+3Kc5couRZqVjuDdcY8u1G3FPBYWIZAoGBAOM9cRBgispMz8fc3bmY
+  AKG0y+jeRPNxw/SQUKERzLkHLmjuvAbJGXqAWubtOldzh8ngCOpIakxjvchNKCf1
+  GpTd+aRwxJGPbNQe+qOUpPZzT2ZwOjYPkjHwpe7tEXCy6oih/5OTXVaEdyj6Pj1J
+  MeRD6+vuHXkBofY9v2Y6eZ0x
+  -----END PRIVATE KEY-----
+,
+  "miner": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "mixHash": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "nonce": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "number": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "parentHash": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "receiptsRoot": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "sha3Uncles": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "size": "0x200",
+  "stateRoot": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "timestamp": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "transactions": [0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328],
+  "transactionsRoot": "0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328",
+  "uncles": [0xaeEb02466302eFe16A316683E7Eabd68Bd28F3328]
+}
